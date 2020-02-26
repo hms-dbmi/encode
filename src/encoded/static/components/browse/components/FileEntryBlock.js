@@ -243,6 +243,135 @@ export class FileEntryBlock extends React.PureComponent {
     }
 }
 
+export class ExperimentEntryBlock extends React.PureComponent {
+
+    static propTypes = {
+        'selectedFiles' : PropTypes.object,
+        'handleFileCheckboxChange' : PropTypes.func,
+        'excludeCheckbox' : PropTypes.bool,
+        'experiments' : PropTypes.object,
+        'columnHeaders' : PropTypes.arrayOf(PropTypes.object)
+    };
+
+    static defaultProps = {
+        'excludeCheckbox' : false,
+        'label' : <StackedBlockNameLabel title="" />,
+        'hideNameOnHover' : false,
+        'keepLabelOnHover' : true
+    };
+
+    constructor(props){
+        super(props);
+        this.filledFileRow = this.filledFileRow.bind(this);
+        this.renderName = this.renderName.bind(this);
+    }
+
+    /**
+     * Returns a row (list) of column values for `"file-detail"` columnClass columnHeaders.
+     * Contains a number of hard-coded rules for certain titles:
+     */
+    filledFileRow(){
+        const { columnHeaders, className, colWidthStyles,file } = this.props;
+        const row = []; // Return val.
+        const cols = _.filter(columnHeaders, function(col){ return col.columnClass === 'file-detail'; });
+        const baseClassName = (className || '') + " col-file-detail item";
+
+        _.forEach(cols, (col, index)=>{
+            const colClassName = baseClassName + ' col-' + col.columnClass + ' detail-col-' + index;
+            const colStyle = colWidthStyles ? colWidthStyles[col.field || col.title || col.columnClass] : null;
+
+            if (typeof col.render === 'function') {
+                row.push(
+                    <div key={col.field || index} className={colClassName} style={colStyle}>
+                        {col.render(file, col.field, index, this.props)}
+                    </div>
+                );
+                return;
+            }
+
+            if (typeof col.field === 'string'){
+                // Grab value out of file.
+                let val = object.getNestedProperty(file, col.field, true);
+                val = (val && Schemas.Term.toName(col.field, val, true)) || '-';
+                row.push(<div key={col.field} className={colClassName} style={colStyle}>{ val }</div>);
+                return;
+            }
+        });
+        return row;
+    }
+
+    renderNameInnerTitle(){
+        const { file, columnHeaders } = this.props;
+        const colForFile = _.findWhere(columnHeaders || [], { 'columnClass' : 'file' }) || null;
+        const fileAtId = file && object.atIdFromObject(file);
+        const fileError = (file && file.error) || false;
+        let fileTitleString;
+
+        if (fileError) {
+            return <div key="name-title" className="name-title inline-block"><em>{ fileError }</em></div>;
+        }
+
+        if (!file || !fileAtId) {
+            return <div key="name-title" className="name-title inline-block"><em>No file(s) or view permissions.</em></div>;
+        }
+
+        if (typeof colForFile.render === 'function') {
+            var renderedName = colForFile.render(file, colForFile.field || null, 0, this.props);
+            if (renderedName) return <div key="name-title" className="name-title inline-block">{ renderedName }</div>;
+        }
+
+        if (!fileTitleString && file.accession) {
+            fileTitleString = file.accession;
+        }
+        if (!fileTitleString && fileAtId) {
+            var idParts = _.filter(fileAtId.split('/'));
+            if (idParts[1].slice(0,5) === '4DNFI'){
+                fileTitleString = idParts[1];
+            }
+        }
+        if (!fileTitleString) {
+            fileTitleString = displayTitle || displayTitle || 'N/A';
+        }
+
+        return <a className="title-of-file mono-text name-title" href={fileAtId}>{ fileTitleString }</a>;
+    }
+
+
+    renderName(){
+        const { file, colWidthStyles, label, excludeCheckbox, selectedFiles } = this.props;
+        const classList = ['name', 'col-file'];
+        if (file && file.accession) classList.push('mono-text');
+        if (!excludeCheckbox && selectedFiles && SingleFileCheckbox.hasCheckbox(file)){
+            classList.push('has-checkbox');
+        }
+        return (
+            <div key="file-entry-name-block" className={classList.join(' ')}
+                style={colWidthStyles ? colWidthStyles.file : null}>
+                { label }
+                { !excludeCheckbox ? <SingleFileCheckbox {...this.props} /> : null }
+                { this.renderNameInnerTitle() }
+            </div>
+        );
+    }
+
+    render(){
+        const { hideNameOnHover, keepLabelOnHover, isSingleItem, stripe, stackDepth } = this.props;
+        const classList = ['s-block', 'file', 'stack-depth-' + stackDepth];
+
+        if (hideNameOnHover)    classList.push('hide-name-on-block-hover');
+        if (keepLabelOnHover)   classList.push('keep-label-on-name-hover');
+        if (isSingleItem)       classList.push('single-item');
+        if (typeof stripe !== 'undefined' && stripe !== null){
+            classList.push((stripe === true || stripe === 'even') ? ' even' : ' odd');
+        }
+        return (
+            <div key="file-s-block" className={classList.join(' ')}>
+                { this.renderName() }
+                { this.filledFileRow() }
+            </div>
+        );
+    }
+}
 
 /** Renders out a checkbox which controls selected state of multiple files */
 class MultipleFileCheckbox extends React.PureComponent {

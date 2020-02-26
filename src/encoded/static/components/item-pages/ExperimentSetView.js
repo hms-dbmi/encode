@@ -18,10 +18,11 @@ import { OverViewBodyItem } from './DefaultItemView';
 import WorkflowRunTracingView, { FileViewGraphSection } from './WorkflowRunTracingView';
 import { QCMetricFromSummary } from './FileView';
 
-import { RawFilesStackedTableExtendedColumns, ProcessedFilesStackedTable, renderFileQCReportLinkButton } from './../browse/components/file-tables';
+import { RawFilesStackedTableExtendedColumns, ProcessedFilesStackedTable, ExperimentsStackedTable, renderFileQCReportLinkButton } from './../browse/components/file-tables';
 import { SelectedFilesController, uniqueFileCount } from './../browse/components/SelectedFilesController';
 import { SelectedFilesDownloadButton } from './../browse/components/above-table-controls/SelectedFilesDownloadButton';
 import { EmbeddedHiglassActions } from './../static-pages/components';
+import { EmbeddedItemSearchTable } from './components/tables/ItemPageTable';
 
 // eslint-disable-next-line no-unused-vars
 const { Item, File, ExperimentSet } = typedefs;
@@ -484,6 +485,14 @@ class ProcessedFilesStackedTableSection extends React.PureComponent {
         }
     }
 
+    renderExperimentsNotAssociatedWithFiles(experimentsDetail) {
+        const { width, windowWidth, href, context } = this.props;
+        if (context.processed_files.length > 0) {
+            return <ExperimentsStackedTable {...{ width, windowWidth, href }}
+                experiments={context.replicate_exps} experimentsDetail={context.experiments_in_set} collapseLimit={10} collapseShow={7} collapseLongLists={true} titleForFiles="Processed File Metrics" />;
+        }
+
+    }
     renderHeader(){
         const { files, selectedFiles, context } = this.props;
         const selectedFilesUniqueCount = ProcessedFilesStackedTableSection.selectedFilesUniqueCount(selectedFiles);
@@ -515,6 +524,7 @@ class ProcessedFilesStackedTableSection extends React.PureComponent {
             <div className="processed-files-table-section exp-table-section">
                 {this.renderHeader()}
                 {this.renderTopRow()}
+                {this.renderExperimentsNotAssociatedWithFiles()}
                 <QCMetricsTable {...this.props} />
             </div>
         );

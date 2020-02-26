@@ -11,7 +11,7 @@ import { DropdownButton, DropdownItem } from 'react-bootstrap';
 
 import { console, isServerSide, analytics, object, commonFileUtil, navigate, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
-import { FileEntryBlock, FilePairBlock, FileHeaderWithCheckbox, handleFileCheckboxChangeFxn } from './FileEntryBlock';
+import { FileEntryBlock, FilePairBlock,ExperimentEntryBlock, FileHeaderWithCheckbox, handleFileCheckboxChangeFxn } from './FileEntryBlock';
 import { SelectedFilesController } from './SelectedFilesController';
 import { expFxn, Schemas, typedefs, fileUtil } from './../../util';
 import { Item, ExperimentSet } from '../../util/typedefs';
@@ -238,7 +238,62 @@ export function renderFileTitleColumn(file, field, detailIndex, fileEntryBlockPr
     );
 }
 
+/**
+ * Renderer for "columnClass" : "file" column definition.
+ * It takes a different param signature than ordinary file-detail columns, which accept `experiment detail`, `fieldName`, `headerIndex`, and `experimentEntryBlockProps`.
+ *
+ */
+export function experimentRenderTitleBiosourceColumn(file, field, detailIndex, fileEntryBlockProps) {
 
+    const fileAtId = file && object.itemUtil.atId(file);
+    if (!fileAtId) return <em>No file available</em>;
+
+    var fileTitleString;
+    fileTitleString = file.biosample.biosource_summary;
+    const className = 'col-file-detail';
+
+    const title = (
+        <a className={className}>{fileTitleString}</a>);
+    return (
+        <React.Fragment>
+            {title}
+        </React.Fragment>
+    );
+}
+export function experimentRenderTitleCategoryColumn(file, field, detailIndex, fileEntryBlockProps){
+
+    // const fileAtId = file && object.itemUtil.atId(file.replicate_exp);
+    const fileAtId = file && object.itemUtil.atId(file);
+    if (!fileAtId) return <em>No file available</em>;
+
+    var fileTitleString;
+    fileTitleString=file.experiment_type.experiment_category;
+    const className = 'col-file-detail';
+
+    const title = (
+        <a className={className}>{fileTitleString}</a>);
+    return (
+        <React.Fragment>
+            {title}
+        </React.Fragment>
+    );
+}
+export function experimentRenderTitleStatus(file, field, detailIndex, fileEntryBlockProps){
+    const fileAtId = file && object.itemUtil.atId(file);
+    if (!fileAtId) return <em>No file available</em>;
+
+    var fileTitleString;
+    fileTitleString=file.status;
+    const className = 'col-file-detail';
+
+    const title = (
+        <a className={className}>{fileTitleString}</a>);
+    return (
+        <React.Fragment>
+            {title}
+        </React.Fragment>
+    );
+}
 export function renderFileTypeSummaryColumn(file, field, detailIndex, fileEntryBlockProps){
     const fileFormat = commonFileUtil.getFileFormatStr(file);
     const summary = (
@@ -827,7 +882,99 @@ export class ProcessedFilesStackedTable extends React.PureComponent {
 }
 
 
+export class ExperimentsStackedTable extends React.PureComponent {
+    static defaultProps = {
+        'columnHeaders': [
+            { columnClass: 'experiment', className: 'text-left', title: 'Experiment', initialWidth: 210  },
+            { columnClass: 'file', title: 'Biosource', initialWidth: 135, render: experimentRenderTitleBiosourceColumn },
+            { columnClass: 'file-detail', title: 'Category', initialWidth: 135, render: experimentRenderTitleCategoryColumn },
+            { columnClass: 'file-detail', title: 'Status', initialWidth: 70, render: experimentRenderTitleStatus }
+        ],
+        'collapseLongLists': true,
+        'nonFileHeaderCols': ['experiment', 'file'],
+        'titleForFiles': 'Processed Files'
+    };
+    static propTypes = {
+        'experiments': PropTypes.array.isRequired
+    };
 
+    constructor(props){
+        super(props);
+        this.oddExpRow = false;
+    }
+
+    componentDidUpdate() {
+        this.oddExpRow = false;
+    }
+    renderDetailBlocksForExperiment(filesForExperiment) {
+        const { href } = this.props;
+        var fileBlocks = [];
+
+        fileBlocks.push(
+            <ExperimentEntryBlock key={object.atIdFromObject(filesForExperiment.replicate_exp)} file={filesForExperiment} href={href}
+                stripe={this.oddExpRow} hideNameOnHover={false} />
+        );
+
+
+        return fileBlocks;
+    }
+    renderExperimentBlocks(exps, expsDetail) {
+
+        const { collapseLongLists, titleForFiles,experiments } = this.props;
+        var experimentDetail;
+        _.map(expsDetail, (expDetail) => {
+            experimentDetail = expDetail;
+        });
+        return _.map(exps, (exp) => {
+            const experiment = exp;
+            var experimentAccession = exp.replicate_exp.accession;
+
+            const nameTitle = (
+                experimentAccession === 'global' ? (
+                    <div style={{ 'fontSize': '1.25rem', 'height': 16 }} className="text-300">
+                        Multiple Experiments
+                    </div>
+                ) : (
+                    (experiment && typeof experiment.replicate_exp.display_title === 'string' && experiment.replicate_exp.display_title.replace(' - ' + experimentAccession, '')) || experimentAccession
+                )
+            );
+
+            const experimentAtId = (experimentAccession !== 'global' && object.atIdFromObject(experiment.replicate_exp)) || null;
+            const replicateNumbersExists =experiment.bio_rep_no && experiment.tec_rep_no;
+            var nameBlock = (
+                <StackedBlockName className={replicateNumbersExists ? "double-line" : ""}>
+                    {replicateNumbersExists ? <div>Bio Rep <b>{experiment.bio_rep_no}</b>, Tec Rep <b>{experiment.tec_rep_no}</b></div> : <div />}
+                    {experimentAtId ? <a href={experimentAtId} className="name-title text-500">{nameTitle}</a> : <div className="name-title">{nameTitle}</div>}
+                </StackedBlockName>
+
+            );
+            return (
+                <StackedBlock columnClass="experiment" hideNameOnHover={experimentAccession === 'global'}
+                    key={experimentAccession} label={
+                        <StackedBlockNameLabel title={experimentAccession === 'global' ? 'From Multiple Experiments' : 'Experiment'}
+                            accession={experimentAccession === 'global' ? expSetAccession : experimentAccession} subtitleVisible />
+                    }>
+                    {nameBlock}
+                    <StackedBlockList className="file-detail" title={titleForFiles} showMoreExtTitle={null} >
+                        { this.renderDetailBlocksForExperiment(experimentDetail) }
+                    </StackedBlockList>
+                </StackedBlock>
+
+            );
+
+        });
+    }
+
+    render() {
+        const { experiments, collapseLongLists, columnHeaders, files, experimentsDetail } = this.props;
+        const experimentBlocks = this.renderExperimentBlocks(experiments,experimentsDetail);
+        return (
+            <StackedBlockTable className="expset-processed-files" {..._.omit(this.props, 'children', 'files')}>
+                <StackedBlockList className="sets" >{experimentBlocks}</StackedBlockList>
+            </StackedBlockTable>
+        );
+    }
+}
 export class RawFilesStackedTableExtendedColumns extends React.PureComponent {
 
     static defaultProps = RawFilesStackedTable.defaultProps;
