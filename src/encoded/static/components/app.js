@@ -64,7 +64,7 @@ export default class App extends React.PureComponent {
      * @constant
      * @type {number}
      */
-    static SLOW_REQUEST_TIME = 750
+    static SLOW_REQUEST_TIME = 750;
 
     /**
      * Immediately scrolls browser viewport to current window hash or to top of page.

@@ -249,26 +249,7 @@
                         "title": "Format",
                         "description": "Argument Format",
                         "type": "string",
-                        "linkTo": "FileFormat",
-                        "suggested_enum" : [
-                            "fastq",
-                            "bam",
-                            "bai",
-                            "pairs",
-                            "pairsam",
-                            "pairs_px2",
-                            "pairsam_px2",
-                            "cool",
-                            "mcool",
-                            "hic",
-                            "bwaIndex",
-                            "chromsizes",
-                            "reference_fasta",
-                            "juicer_format_restriction_site_file",
-                            "normvector_juicerformat",
-                            "zip",
-                            "other"
-                        ]
+                        "linkTo": "FileFormat"
                     },
                     "argument_to_be_attached_to": {
                         "title": "Argument To Be Attached To",

@@ -57,8 +57,11 @@
                 "1.3% Formaldehyde",
                 "2% Formaldehyde",
                 "2.5% Formaldehyde",
+                "3% Formaldehyde",
                 "3.5% Formaldehyde",
-                "1% Formaldehyde and 3mM DSG"
+                "1% Formaldehyde and 3nM DSG",
+                "1% Formaldehyde and 3mM DSG",
+                "1% Formaldehyde and 2mM EGS"
             ]
         },
         "crosslinking_time": {

@@ -39,7 +39,7 @@
         },
         "title": {
             "title": "Title",
-            "description": "A unique name for lab & affiliation use PI's first & last name, Lab, comma, and institute label. (e.g. John Doe Lab, UNI).",
+            "description": "A unique name for lab & affiliation use PI's first & last name, comma, and institute label. (e.g. John Doe, UNI).",
             "type": "string",
             "uniqueKey": "lab:name",
             "permission": "import_items"

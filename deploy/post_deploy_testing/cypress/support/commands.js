@@ -32,10 +32,26 @@ import { navUserAcctDropdownBtnSelector, navUserAcctLoginBtnSelector } from './v
 
 /** Expected to throw error of some sort if not on search page, or no results. */
 Cypress.Commands.add('searchPageTotalResultCount', function(options){
-    return cy.get('div.above-results-table-row .box.results-count > div.inline-block > span.text-500')
-        .invoke('text').then(function(resultText){
-            return parseInt(resultText);
+
+    function getValue(){
+        const $elem = Cypress.$('div.above-results-table-row .box.results-count > div.inline-block > span.text-500');
+        const count = parseInt($elem.text());
+        expect(typeof count).to.equal("number");
+        expect(isNaN(count)).to.be.false;
+        return count;
+    }
+
+    function resolveValue(){
+        return Cypress.Promise.try(getValue).then(function(count){
+            return cy.verifyUpcomingAssertions(count, options, {
+                onRetry: resolveValue
+            });
         });
+    }
+
+    return resolveValue().then(function(count){
+        return count;
+    });
 });
 
 

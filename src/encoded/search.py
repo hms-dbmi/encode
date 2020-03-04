@@ -261,7 +261,7 @@ def collection_view(context, request):
 
 def get_collection_actions(request, type_info):
     collection = request.registry[COLLECTIONS].get(type_info.name)
-    if collection and hasattr(collection, 'actions'):
+    if hasattr(collection, 'actions'):
         return collection.actions(request)
     else:
         return None

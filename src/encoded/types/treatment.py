@@ -51,33 +51,35 @@ class TreatmentAgent(Treatment):
                       biological_agent=None, constructs=None, duration=None,
                       duration_units=None, concentration=None,
                       concentration_units=None, temperature=None):
-        d_t = []
         conditions = ""
         if concentration and concentration_units:
-            d_t.extend([str(concentration), ' ' + concentration_units])
+            conditions += str(concentration) + " " + concentration_units
         if duration and duration_units:
-            if d_t:
-                d_t[-1] += ', '
-            d_t.extend([str(duration) + duration_units[0]])
+            if conditions:
+                conditions += ", "
+            conditions += str(duration) + duration_units[0]
         if temperature:
-            d_t.append(" at " + str(temperature) + "°C")
-        if d_t:
-            conditions = " (" + "".join(d_t) + ")"
+            if conditions:
+                conditions += " "
+            conditions += "at " + str(temperature) + "°C"
+        if conditions:
+            conditions = " (" + conditions + ")"
 
         if chemical:
-            dis_tit = chemical + " treatment" + conditions
-        elif treatment_type == 'Transient Transfection' and constructs:
-            plasmids = ', '.join(
+            action = "treatment" if concentration != 0 else "washout"
+            disp_title = chemical + " " + action + conditions
+        elif treatment_type == "Transient Transfection" and constructs:
+            plasmids = ", ".join(
                 [get_item_if_you_can(request, construct).get('name') for construct in constructs]
             )
-            dis_tit = 'Transient transfection of ' + plasmids + conditions
-        elif treatment_type == 'Biological' and biological_agent:
-            dis_tit = biological_agent + " treatment" + conditions
-        elif treatment_type == 'Other':
-            dis_tit = "Other treatment" + conditions
+            disp_title = "Transient transfection of " + plasmids + conditions
+        elif treatment_type == "Biological" and biological_agent:
+            disp_title = biological_agent + " treatment" + conditions
+        elif treatment_type == "Other":
+            disp_title = "Other treatment" + conditions
         else:
-            dis_tit = treatment_type + conditions
-        return dis_tit
+            disp_title = treatment_type + conditions
+        return disp_title
 
 
 @collection(

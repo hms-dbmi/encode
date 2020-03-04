@@ -158,7 +158,12 @@
             "description": "The type of raw files typically associated with the experiment type in the portal",
             "type": "string",
             "lookup": 160,
-            "suggested_enum": ["Reads (fastq) provided by lab"]
+            "suggested_enum": [
+                "Reads (fastq) provided by lab"
+            ],
+            "ignored_enum": [
+                "Reads (fastq) provided by lab - 3 types: gDNA, iPCR and cDNA"
+            ]
         },
         "sop": {
             "title": "SOP",

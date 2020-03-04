@@ -48,8 +48,14 @@
             "type": "string",
             "lookup": 40,
             "suggested_enum": [
-                "z-stack",
-                "time-series"
+                "image",
+                "time-series",
+                "z-stack"
+            ],
+            "ignored_enum": [
+                "z-stack (20X all channels)",
+                "z-stack (63X ch01 ch02)",
+                "z-stack (63X ch00)"
             ]
         },
         "microscope_settings": {
