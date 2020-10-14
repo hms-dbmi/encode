@@ -975,7 +975,7 @@ function HiGlassFileDetailPane(props) {
             height = (item.height) ? (item.height || '-') : "-";
             width =
                 <FieldSet context={item}>
-                    <EditableField labelID="width" fallbackText="-" style="inline" fieldType="numeric" handleCustomSave={handleCustomSave} valueConvertType="int" buttonAlwaysVisible={true}>
+                    <EditableField labelID="width" fallbackText="-" style="inline" fieldType="numeric" handleCustomSave={handleCustomSave} dataType="int" buttonAlwaysVisible={true}>
                     </EditableField>
                 </FieldSet>;
         }
