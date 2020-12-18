@@ -1069,7 +1069,7 @@ def initialize_facets(request, doc_types, prepared_terms, schemas, additional_fa
     # Append additional facets (status, validation_errors, ...) at the end of
     # list unless were already added via schemas, etc.
     used_facets = [ facet[0] for facet in facets ] # Reset this var
-    for ap_facet in append_facets + validation_error_facets:
+    for ap_facet in append_facets:
         if ap_facet[0] not in used_facets:
             facets.append(ap_facet)
         else: # Update with better title if not already defined from e.g. requested filters.
