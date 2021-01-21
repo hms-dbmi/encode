@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# This is a workaround for a problem where some versions of poetry,
+# stray .dist-info files created by "python setup_eb.py develop"
+# seem to break "make deploy1".  With poetry 1.0.10 loaded, that
+# doesn't seem to happen, but with later versions it does. So we've
+# put this check in place just in case.  Hopefully in the future we
+# can remove this workaround, which is pretty ugly. -kmp 11-Nov-2020
+
+# First we find out if there are any .dist-info files.
+# If there are none, the 'ls' command will fail, hopefully quietly,
+# and the value of dist_info_found will be the empty string.
+# Otherwise, it will be the file listing.
+
+dist_info_found=`ls -dal ${VIRTUAL_ENV}/lib/python3.6/site-packages/encoded-[0-9][.][0-9]*.dist-info 2>/dev/null`
+
+# Now we test whether there are files to delete, and if there are we do it.
+
+if [ -n "${dist_info_found}" ]; then
+    echo "Unwanted .dist_info files for the 'encoded' library were found:"
+    echo "${dist_info_found}"
+    echo "Cleaning up..."
+    rm -rf ${VIRTUAL_ENV}/lib/python3.6/site-packages/encoded-[0-9][.][0-9]*.dist-info
+    echo "Done cleaning up."
+else
+    echo "No unwanted .dist_info files for the 'encoded' library found."
+fi

@@ -1612,13 +1612,19 @@ def build_table_columns(request, schemas, doc_types):
             "default_hidden"    : True,
             "order"             : 501
         }
-    # Add date column, if not present, at end.
+    # Add created date column, if not present, at end.
     if 'date_created' not in columns:
         columns['date_created'] = {
             "title"             : "Date Created",
-            "colTitle"          : "Created",
             "default_hidden"    : True,
             "order"             : 510
+        }
+    # Add modified date column, if not present, at end.   
+    if 'last_modified.date_modified' not in columns:
+        columns['last_modified.date_modified'] = {
+            "title"             : "Date Modified",
+            "default_hidden"    : True,
+            "order"             : 520
         }
     return columns
 

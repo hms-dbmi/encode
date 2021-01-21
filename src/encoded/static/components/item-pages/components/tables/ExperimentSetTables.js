@@ -8,6 +8,8 @@ import { console } from '@hms-dbmi-bgm/shared-portal-components/es/components/ut
 import { ItemPageTable, ItemPageTableIndividualUrlLoader, ViewMoreResultsBtn, EmbeddedItemSearchTable, SearchTableTitle } from './ItemPageTable';
 import { ExperimentSetDetailPane } from './../../../browse/components/ExperimentSetDetailPane';
 import { columnExtensionMap as columnExtensionMap4DN } from './../../../browse/columnExtensionMap';
+import { UserContentBodyList } from './../../../static-pages/components';
+import { getTabStaticContent } from './../TabbedView';
 
 
 
@@ -63,23 +65,36 @@ export function ExperimentSetsTableTabView(props){
         title,
         externalSearchLinkVisible,
         searchHref,
-        session, schemas,
+        context, session, schemas,
         facets, columns,
         defaultOpenIndices, maxHeight,
         filterFacetFxn, hideFacets,
         filterColumnFxn, hideColumns,
+        windowWidth,
         children,
         // ...passProps
         // `passProps` would contain remaining props that might be passed down like 'context', 'href', etc. which
         // are irrelevant to EmbeddedExperimentSetSearchTable. Might be repurposed later if add more UI stuff
         // to `ExperimentSetsTableTabView`.
     } = props;
+
+    const staticContent = getTabStaticContent(context, 'tab:expsets-table');
+
     const tableProps = {
         searchHref, facets, columns, defaultOpenIndices, schemas, session,
         maxHeight, filterFacetFxn, filterColumnFxn, hideFacets, hideColumns,
         title: typeof title === "undefined" ? <SearchTableTitle {...{ title: "Experiment Set", externalSearchLinkVisible }} /> : title
     };
-    return <EmbeddedExperimentSetSearchTable {...tableProps}>{ children }</EmbeddedExperimentSetSearchTable>;
+    return (
+        <div className="overflow-hidden">
+            { staticContent && staticContent.length > 0 ? (
+                <div className="mb-2">
+                    <UserContentBodyList contents={staticContent} windowWidth={windowWidth} />
+                    <hr />
+                </div>
+            ) : null}
+            <EmbeddedExperimentSetSearchTable {...tableProps}>{children}</EmbeddedExperimentSetSearchTable>        
+        </div>);
 }
 ExperimentSetsTableTabView.getTabObject = function(props){
     return {

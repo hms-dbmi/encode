@@ -1,15 +1,28 @@
 clean:  # clear node modules, eggs, npm build stuff
+	make clean-python-caches
+	make clean-npm-caches
+
+clean-python-caches:
 	rm -rf src/*.egg-info/
-	rm -rf node_modules eggs
+	rm -rf eggs
+	rm -rf develop
+	rm -rf develop-eggs
+
+clean-npm-caches:
+	make clean-node-modules
 	rm -rf .sass-cache
 	rm -f src/encoded/static/css/*.css
 	rm -f src/encoded/static/build/*.js
 	rm -f src/encoded/static/build/*.html
-	rm -rf develop
-	rm -rf develop-eggs
+
+clean-node-modules:
+	rm -rf node_modules
 
 aws-ip-ranges:
 	curl -o aws-ip-ranges.json https://ip-ranges.amazonaws.com/ip-ranges.json
+
+npm-setup-if-needed:  # sets up npm only if not already set up
+	if [ ! -d "node_modules" ]; then make npm-setup; fi
 
 npm-setup:  # runs all front-end setup
 	npm ci
@@ -24,22 +37,43 @@ macpoetry-install:  # Same as 'poetry install' except that on OSX Catalina, an e
 	bin/macpoetry-install
 
 configure:  # does any pre-requisite installs
-	pip install poetry
-
-macbuild:  # builds for Catalina
-	make configure
-	make macpoetry-install
-	make build-after-poetry
+	pip install --upgrade pip
+	pip install poetry==1.0.10  # pinned to avoid build problems we cannot fix in pyproject.toml
 
 build:  # builds
 	make configure
 	poetry install
 	make build-after-poetry
 
+macbuild:  # builds for Catalina
+	make configure
+	make macpoetry-install
+	make build-after-poetry
+
+rebuild:
+	make clean  # Among other things, this assures 'make npm-setup' will run, but it also does other cleanup.
+	make build
+
+macrebuild:
+	make clean  # Among other things, this assures 'make npm-setup' will run, but it also does other cleanup.
+	make macbuild
+
+build-full:  # rebuilds for Catalina, addressing zlib possibly being in an alternate location.
+	make clean-node-modules  # This effectively assures that 'make npm-setup' will need to run.
+	make build
+
+macbuild-full:  # rebuilds for Catalina, addressing zlib possibly being in an alternate location.
+	make clean-node-modules  # This effectively assures that 'make npm-setup' will need to run.
+	make macbuild
+
 build-after-poetry:  # continuation of build after poetry install
 	make moto-setup
-	make npm-setup
+	make npm-setup  # cgap uses 'make npm-setup-if-needed' here. should this also do that? -kmp 15-Dec-2020
 	poetry run python setup_eb.py develop
+	make fix-dist-info
+
+fix-dist-info:
+	@scripts/fix-dist-info
 
 build-dev:  # same as build, but sets up locust as well
 	make build
@@ -96,7 +130,7 @@ help:
 	@make info
 
 info:
-	@: $(info Printing some info on how to use make)
+	@: $(info Here are some 'make' options:)
 	   $(info - Use 'make aws-ip-ranges' to download latest ip range information. Invoked automatically when needed.)
 	   $(info - Use 'make build' (or 'make macbuild' on OSX Catalina) to build only application dependencies.)
 	   $(info - Use 'make build-dev' (or 'make macbuild-dev' on OSX Catalina) to build all dependencies, even locust.)

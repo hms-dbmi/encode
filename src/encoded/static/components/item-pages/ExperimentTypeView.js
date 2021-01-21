@@ -11,6 +11,7 @@ import { SOPBelowHeaderRow, LinkBelowHeaderRow } from './components/LinkBelowHea
 import { WrappedCollapsibleList } from './components/FormattedInfoBlock';
 import { ExperimentSetsTableTabView } from './components/tables/ExperimentSetTables';
 import { UserContentBodyList } from './../static-pages/components';
+import { getTabStaticContent } from './components/TabbedView';
 
 
 export default class ExperimentTypeView extends DefaultItemView {
@@ -73,9 +74,7 @@ export default class ExperimentTypeView extends DefaultItemView {
 
 
 const ExperimentTypeViewOverview = React.memo(function ExperimentTypeViewOverview({ context, schemas }){
-    const staticContent = _.pluck(_.filter(context.static_content || [], function(s){
-        return s.content && !s.content.error && s.location === 'tab:overview';
-    }), 'content');
+    const staticContent = getTabStaticContent(context, 'tab:overview');
 
     return (
         <div>
