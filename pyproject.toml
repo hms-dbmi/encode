@@ -1,7 +1,7 @@
 [tool.poetry]
 # Note: Various modules refer to this system as "encoded", not "fourfront".
 name = "encoded"
-version = "2.3.9"
+version = "2.3.12"
 description = "4DN-DCIC Fourfront"
 authors = ["4DN-DCIC Team <support@4dnucleome.org>"]
 license = "MIT"
@@ -35,18 +35,19 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.6,<3.7"
-boto3 = "^1.10.46"
-botocore = "^1.13.46"
-certifi = ">=2020.4.5.2"
+python = ">=3.6.1,<3.7"
+boto3 = "^1.10.50"
+botocore = "^1.13.50"
+certifi = ">=2020.11.8"
 chardet = "3.0.4"
 # TODO: These next three are not used in cgap. Are they really needed? -kmp 29-Apr-2020
-"collective.recipe.cmd" = "0.11"
-"collective.recipe.modwsgi" = "2.1"
-"collective.recipe.template" = "1.13"
+# I think .recipe is a buildout thing so I'm going to try commenting this out as a start. Delete later. -kmp 15-Dec-2020
+# "collective.recipe.cmd" = "0.11"
+# "collective.recipe.modwsgi" = "2.1"
+# "collective.recipe.template" = "1.13"
 colorama = "0.3.3"
-dcicsnovault = "^4.0.12"
-dcicutils = "^1.3.0"
+dcicsnovault = "4.1.0"
+dcicutils = "^1.4.0"
 docutils = "0.12"
 elasticsearch = "6.4.0"
 elasticsearch-dsl = "^6.4.0"
@@ -64,10 +65,10 @@ netaddr = ">=0.7.18,<1"
 passlib = "1.6.5"
 PasteDeploy = "1.5.2"
 pbkdf2 = "1.3"
-Pillow = "3.1.1"  # Higher version might be causing a problem
+Pillow = "^6.2.2"  # 6.x.x should work for CGAP -Will 11/18/2020
 plaster = "1.0"
 plaster-pastedeploy = "0.6"
-psutil = "^4.3.0"
+psutil = "^5.6.6"
 psycopg2-binary = "2.7.7"
 py = "1.4.31"
 pyasn1 = "0.1.9"
@@ -81,10 +82,10 @@ pyramid-multiauth = "0.8.0"
 pyramid-retry = "1.0"
 pyramid-tm = "2.2.1"
 pyramid-translogger = "^0.1"
-python-dateutil = "2.5.3"
+python-dateutil = "2.7.3"
 # python-magic is presently pinned to 0.4.15 in lockstep with dcicsnovault's requirements. See explanation there.
 python-magic = "0.4.15"
-pytz = ">=2020.1"
+pytz = ">=2020.4"
 rdflib = "^4.2.2"
 rdflib-jsonld = "0.3"
 requests = "^2.23.0"
@@ -94,18 +95,18 @@ rutter = ">=0.2,<1"
 s3transfer = "^0.2.0"
 simplejson = "^3.17.0"
 SPARQLWrapper = "1.7.6"
-SQLAlchemy = "1.3.16"  # Pinned because >=1.3.17 is a broken for us (circular constraints prevent deletes)
+SQLAlchemy = "1.3.16"  # Pinned because >=1.3.17 is broken for us (circular constraints prevent deletes)
 structlog = ">=18.1.0,<20"
 submit4dn = "0.9.7"
 subprocess-middleware = ">=0.3,<1"
 # Useful for picking apart pyproject.toml
-toml = ">=0.10.0,<1"
+toml = ">=0.10.1,<1"
 transaction = "2.4.0"
 translationstring = "1.3"
 uptime = ">=3.0.1,<4"
 urllib3 = "^1.24.3"
 venusian = "^1.2.0"
-waitress = "1.2.0"
+waitress = "1.2.0"  # 1.4.3 had lots of problems, so pin this -kmp 18-May-2020
 WebOb = "1.8.5"
 WebTest = "^2.0.21"
 wheel = "0.29.0"
@@ -114,12 +115,16 @@ xlrd = "^1.0.0"
 xlwt = "1.2.0"
 "zope.deprecation" = "4.4.0"
 "zope.interface" = "4.6.0"
-"zope.sqlalchemy" = "^1.3"
-sentry-sdk = "^0.16.2"
+"zope.sqlalchemy" = "1.3"
+sentry-sdk = "^0.16.5"
 
 [tool.poetry.dev-dependencies]
-coverage = ">=5.1"
-# flake8 = "3.7.8"
+# PyCharm says boto3-stubs contains useful type hints
+boto3-stubs = ">=1.16.15.0"
+coverage = ">=5.2"
+codacy-coverage = ">=1.3.11"
+coveralls = ">=2.1.1"
+flake8 = "^3.7.8"
 flaky = "3.6.1"
 # flask only for moto[server]
 flask = ">=1.1.1"

@@ -230,4 +230,31 @@ export const columnExtensionMap = _.extend({}, basicColumnExtensionMap, {
     'experiments_in_set.biosample.biosource_summary' : {
         'widthMap' : { 'lg' : 260, 'md' : 230, 'sm' : 180 }
     },
+    'date_created' : {
+        'title' : 'Date Created',
+        'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
+        'render' : function dateCreatedTitle(result, props){
+            if (!result.date_created) return null;
+            return (
+                <span className="value text-center">
+                    <LocalizedTime timestamp={result.date_created} formatType="date-sm" />
+                </span>
+            );
+        },
+        'order' : 510
+    },
+    'last_modified.date_modified' : {
+        'title' : 'Date Modified',
+        'widthMap' : { 'lg' : 140, 'md' : 120, 'sm' : 120 },
+        'render' : function lastModifiedDate(result, props){
+            const { last_modified : { date_modified = null } = {} } = result;
+            if (!date_modified) return null;
+            return (
+                <span className="value text-center">
+                    <LocalizedTime timestamp={date_modified} formatType="date-sm" />
+                </span>
+            );
+        },
+        'order' : 515
+    }
 });

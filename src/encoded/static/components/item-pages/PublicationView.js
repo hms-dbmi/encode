@@ -12,6 +12,7 @@ import { Wrapper as ItemHeaderWrapper, TopRow, MiddleRow, BottomRow } from './co
 import { ExperimentSetsTableTabView } from './components/tables/ExperimentSetTables';
 import DefaultItemView from './DefaultItemView';
 import { UserContentBodyList } from './../static-pages/components';
+import { getTabStaticContent } from './components/TabbedView';
 
 
 
@@ -226,9 +227,7 @@ class PublicationSummary extends React.PureComponent {
     render(){
         const { context, windowWidth } = this.props;
         const abstractCol = this.abstract();
-        const staticContent = _.pluck(_.filter(context.static_content || [], function (s) {
-            return s.content && !s.content.error && s.location === 'tab:overview';
-        }), 'content');
+        const staticContent = getTabStaticContent(context, 'tab:overview');
 
         return (
             <div>
