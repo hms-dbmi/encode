@@ -40,7 +40,7 @@ export default class PublicationView extends DefaultItemView {
                         "publications_of_set.display_title=" + encodeURIComponent(display_title)
                     ),
                     // Keep facets as they are returned from backend search response except the following:
-                    hideFacets: ["type", "validation_errors.name", "publications_of_set.display_title", "experimentset_type"]
+                    hideFacets: ["type", "publications_of_set.display_title", "experimentset_type"]
                     //facets : null // hide FacetList
                 },
                 this.props

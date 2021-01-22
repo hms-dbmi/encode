@@ -500,7 +500,7 @@ def prepare_search_term(request):
     """
     prepared_terms = {}
     for field, val in request.normalized_params.items():
-        if field.startswith('validation_errors') or field.startswith('aggregated_items') or \
+        if field.startswith('aggregated_items') or \
                 field == 'additional_facet':
             continue
         elif field == 'q': # searched string has field 'q'
@@ -816,7 +816,7 @@ def set_filters(request, search, result, principals, doc_types):
         # Add filter to query
         if range_type and f_field and range_type in ('date', 'numerical'):
             query_field = 'embedded.' + f_field
-        elif field.startswith('validation_errors') or field.startswith('aggregated_items'):
+        elif field.startswith('aggregated_items'):
             query_field = field + '.raw'
         elif field == 'type':
             query_field = 'embedded.@type.raw'
@@ -976,9 +976,6 @@ def initialize_facets(request, doc_types, prepared_terms, schemas, additional_fa
         # TODO: Re-enable below line if/when 'range' URI param queries for date & numerical fields are implemented.
         # ('date_created', {'title': 'Date Created', 'hide_from_view' : True, 'aggregation_type' : 'date_histogram' })
     ]
-    validation_error_facets = [
-        ('validation_errors.name', {'title': 'Validation Errors', 'order': 999})
-    ]
     # hold disabled facets from schema; we also want to remove these from the prepared_terms facets
     disabled_facets = []
 
@@ -1066,7 +1063,7 @@ def initialize_facets(request, doc_types, prepared_terms, schemas, additional_fa
 
             facets.append(facet_tuple)
 
-    # Append additional facets (status, validation_errors, ...) at the end of
+    # Append additional facets (status, ...) at the end of
     # list unless were already added via schemas, etc.
     used_facets = [ facet[0] for facet in facets ] # Reset this var
     for ap_facet in append_facets:
@@ -1108,10 +1105,9 @@ def schema_for_field(field, request, doc_types, should_log=False):
 
     field_schema = None
 
-    # for 'validation_errors.*' and 'aggregated_items.*',
+    # for 'aggregated_items.*',
     # schema will never be found and logging isn't helpful
-    if (schemas and not field.startswith('validation_errors.') and
-        not field.startswith('aggregated_items.')):
+    if (schemas and not field.startswith('aggregated_items.')):
         # 'type' field is really '@type' in the schema
         use_field = '@type' if field == 'type' else field
         # eliminate '!' from not fields
@@ -1235,7 +1231,7 @@ def set_facets(search, facets, search_filters, string_query, request, doc_types,
 
         if field == 'type':
             query_field = 'embedded.@type.raw'
-        elif field.startswith('validation_errors') or field.startswith('aggregated_items'):
+        elif field.startswith('aggregated_items'):
             query_field = field + '.raw'
         elif facet.get('aggregation_type') in ('stats', 'date_histogram', 'histogram', 'range'):
             query_field = 'embedded.' + field
@@ -1472,7 +1468,7 @@ def format_results(request, hits, search_frame):
     """
     Loads results to pass onto UI
     Will retrieve the desired frame from the search hits and automatically
-    add 'validation_errors' and 'aggregated_items' frames if they are present
+    add aggregated_items' frames if they are present
     """
     fields_requested = request.normalized_params.getall('field')
     if fields_requested:
@@ -1487,9 +1483,7 @@ def format_results(request, hits, search_frame):
         if frame == 'raw':
             frame = 'properties'
         for hit in hits:
-            frame_result = hit['_source'][frame]
-            if 'validation_errors' in hit['_source'] and 'validation_errors' not in frame_result:
-                frame_result['validation_errors'] = hit['_source']['validation_errors']
+            frame_result = hit['_source'][frame]            
             if 'aggregated_items' in hit['_source'] and 'aggregated_items' not in frame_result:
                 frame_result['aggregated_items'] = hit['_source']['aggregated_items']
             yield frame_result
