@@ -69,7 +69,6 @@
                 "LADs",
                 "localizations",
                 "loci distances",
-                "locus distances, submitter format",
                 "long range chromatin interactions",
                 "microscopy summary",
                 "multi-contact read clusters",
@@ -91,9 +90,11 @@
                 "image mask-cell",
                 "image mask-cytoplasm",
                 "image mask-nucleus",
+                "locus distances, submitter format",
                 "read counts (minus)",
                 "read counts (plus)",
-                "reads-combined"
+                "reads-combined",
+                "spt results, submitter format"
             ]
         },
         "file_classification": {
