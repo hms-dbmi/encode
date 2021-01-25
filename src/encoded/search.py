@@ -500,8 +500,7 @@ def prepare_search_term(request):
     """
     prepared_terms = {}
     for field, val in request.normalized_params.items():
-        if field.startswith('aggregated_items') or \
-                field == 'additional_facet':
+        if field.startswith('aggregated_items') or field == 'additional_facet':
             continue
         elif field == 'q': # searched string has field 'q'
             # people shouldn't provide multiple queries, but if they do,
@@ -816,7 +815,7 @@ def set_filters(request, search, result, principals, doc_types):
         # Add filter to query
         if range_type and f_field and range_type in ('date', 'numerical'):
             query_field = 'embedded.' + f_field
-        elif field.startswith('aggregated_items'):
+        elif field.startswith('validation_errors') or field.startswith('aggregated_items'):
             query_field = field + '.raw'
         elif field == 'type':
             query_field = 'embedded.@type.raw'
@@ -1063,7 +1062,7 @@ def initialize_facets(request, doc_types, prepared_terms, schemas, additional_fa
 
             facets.append(facet_tuple)
 
-    # Append additional facets (status, ...) at the end of
+    # Append additional facets (status ...) at the end of
     # list unless were already added via schemas, etc.
     used_facets = [ facet[0] for facet in facets ] # Reset this var
     for ap_facet in append_facets:
@@ -1105,9 +1104,10 @@ def schema_for_field(field, request, doc_types, should_log=False):
 
     field_schema = None
 
-    # for 'aggregated_items.*',
+    # for 'validation_errors.*' and 'aggregated_items.*',
     # schema will never be found and logging isn't helpful
-    if (schemas and not field.startswith('aggregated_items.')):
+    if (schemas and not field.startswith('validation_errors.') and
+        not field.startswith('aggregated_items.')):
         # 'type' field is really '@type' in the schema
         use_field = '@type' if field == 'type' else field
         # eliminate '!' from not fields
@@ -1231,7 +1231,7 @@ def set_facets(search, facets, search_filters, string_query, request, doc_types,
 
         if field == 'type':
             query_field = 'embedded.@type.raw'
-        elif field.startswith('aggregated_items'):
+        elif field.startswith('validation_errors') or field.startswith('aggregated_items'):
             query_field = field + '.raw'
         elif facet.get('aggregation_type') in ('stats', 'date_histogram', 'histogram', 'range'):
             query_field = 'embedded.' + field
@@ -1468,7 +1468,7 @@ def format_results(request, hits, search_frame):
     """
     Loads results to pass onto UI
     Will retrieve the desired frame from the search hits and automatically
-    add aggregated_items' frames if they are present
+    add 'validation_errors' and 'aggregated_items' frames if they are present
     """
     fields_requested = request.normalized_params.getall('field')
     if fields_requested:
@@ -1483,7 +1483,9 @@ def format_results(request, hits, search_frame):
         if frame == 'raw':
             frame = 'properties'
         for hit in hits:
-            frame_result = hit['_source'][frame]            
+            frame_result = hit['_source'][frame]
+            if 'validation_errors' in hit['_source'] and 'validation_errors' not in frame_result:
+                frame_result['validation_errors'] = hit['_source']['validation_errors']
             if 'aggregated_items' in hit['_source'] and 'aggregated_items' not in frame_result:
                 frame_result['aggregated_items'] = hit['_source']['aggregated_items']
             yield frame_result
